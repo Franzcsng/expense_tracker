@@ -21,7 +21,6 @@ export function LoginForm() {
             console.log(data.error)
             return
         }
-    
     }
 
     return (
