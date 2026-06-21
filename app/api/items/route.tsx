@@ -1,13 +1,19 @@
 import {NextResponse} from 'next/server';
-import {supabase} from '@/lib/supabase/server-client.ts';
+import {createClient} from '@/lib/supabase/server-client.ts';
 
 export async function GET(request: Request) {
 
+    const supabase = await createClient();
+
     try{
-        const {data} = await supabase.from('items').select('*');
+        const {data} = await supabase
+        .from('items')
+        .select('*');
+
         return NextResponse.json(data);
-    }catch(error){
-        
+    }catch(error: any){
+        return NextResponse.json({error: error?.message}, {status: 400})
     }
     
 }
+
