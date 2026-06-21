@@ -1,7 +1,9 @@
-import {supabase} from "@/lib/supabase/server-client.ts";
+import { createClient } from "@/lib/supabase/server-client.ts";
 import {NextResponse} from "next/server";
 
 export async function POST(request: Request) {
+
+    const supabase = await createClient();
 
     const requestBody = await request.json();
     const email = requestBody.email;
@@ -18,8 +20,10 @@ export async function POST(request: Request) {
             return NextResponse.json({error: error?.message}, {status: 400})
         }
 
+        const user = data.user
+        
         return NextResponse.json({
-            user: data.user
+            user
         });
         
     }catch(err: any){
