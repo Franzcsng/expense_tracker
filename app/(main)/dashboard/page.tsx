@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { createClient } from "@/app/lib/supabase/server-client"
 import {
   getDateRange,
@@ -39,12 +38,10 @@ export default async function DashboardPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect("/login")
-
   const { data: receipts } = await supabase
     .from("Receipts")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", user!.id)
     .gte("expense_date", startStr)
     .lte("expense_date", endStr)
     .order("expense_date", { ascending: true })
@@ -68,7 +65,7 @@ export default async function DashboardPage({
   const { data: recentReceipts } = await supabase
     .from("Receipts")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", user!.id)
     .order("created_at", { ascending: false })
     .limit(10)
 

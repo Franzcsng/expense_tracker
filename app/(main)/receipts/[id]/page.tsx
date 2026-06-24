@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { redirect, notFound } from "next/navigation"
+import { notFound } from "next/navigation"
 import { createClient } from "@/app/lib/supabase/server-client"
 import { formatPeso, formatDate } from "@/app/lib/dashboard-utils"
 
@@ -15,13 +15,11 @@ export default async function ReceiptDetailPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect("/login")
-
   const { data: receipt } = await supabase
     .from("Receipts")
     .select("*")
     .eq("receipt_id", id)
-    .eq("user_id", user.id)
+    .eq("user_id", user!.id)
     .single()
 
   if (!receipt) notFound()

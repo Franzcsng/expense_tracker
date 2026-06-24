@@ -103,9 +103,15 @@ export function UploadReceiptForm() {
               View Receipt
             </Link>
           )}
+          <Link
+            href="/add"
+            className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-sm font-medium transition"
+          >
+            Add New Receipt
+          </Link>
           <button
             onClick={reset}
-            className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-sm transition"
+            className="px-4 py-2 rounded-lg bg-zinc-800/60 hover:bg-zinc-700 text-zinc-400 text-sm transition"
           >
             Upload Another
           </button>

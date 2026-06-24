@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface ItemRow {
   item: string
@@ -14,10 +14,10 @@ const CATEGORIES = ["Food", "Transport", "Shopping", "Utilities", "Health", "Ent
 const emptyItem = (): ItemRow => ({ item: "", category: "", amount: "" })
 
 export function ManualReceiptForm() {
-  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [items, setItems] = useState<ItemRow[]>([emptyItem()])
   const [error, setError] = useState("")
+  const [savedReceiptId, setSavedReceiptId] = useState<string | null>(null)
 
   const updateItem = (i: number, field: keyof ItemRow, value: string) =>
     setItems((prev) => prev.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)))
@@ -58,8 +58,39 @@ export function ManualReceiptForm() {
         return
       }
 
-      router.push(`/receipts/${data.receiptId}`)
+      setSavedReceiptId(data.receiptId)
     })
+  }
+
+  const reset = () => {
+    setSavedReceiptId(null)
+    setItems([emptyItem()])
+    setError("")
+  }
+
+  if (savedReceiptId) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-12 text-center">
+        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl">
+          ✓
+        </div>
+        <p className="text-zinc-100 font-medium">Receipt saved!</p>
+        <div className="flex gap-3">
+          <Link
+            href={`/receipts/${savedReceiptId}`}
+            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition"
+          >
+            View Receipt
+          </Link>
+          <button
+            onClick={reset}
+            className="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-sm font-medium transition"
+          >
+            Add New Receipt
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
