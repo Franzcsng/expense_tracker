@@ -7,7 +7,7 @@ export async function GET(request: Request) {
 
     try{
         const {data} = await supabase
-        .from('items')
+        .from('Items')
         .select('*');
 
         return NextResponse.json(data);

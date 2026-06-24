@@ -1,7 +1,9 @@
 export default function Footer() {
-    return (
-        <div className="w-full h-auto  border-1 border-black">
-            <div className="max-w-7xl w-full p-2.5 bg-white mx-auto"></div>
-        </div>
-    )
+  return (
+    <footer className="w-full border-t border-zinc-800 bg-zinc-900">
+      <div className="max-w-6xl w-full mx-auto px-6 h-12 flex items-center">
+        <p className="text-xs text-zinc-600">© {new Date().getFullYear()} ExpenseTracker</p>
+      </div>
+    </footer>
+  )
 }

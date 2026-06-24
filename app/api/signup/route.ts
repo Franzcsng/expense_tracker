@@ -9,8 +9,8 @@ export async function POST(request: Request) {
     const {
         email,
         password,
-        firstName,
-        lastName
+        first_name,
+        last_name
     } = requestBody
 
     try{
@@ -18,6 +18,12 @@ export async function POST(request: Request) {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
+            options: { 
+                data: {
+                    first_name,
+                    last_name,
+                },
+            }
         })
 
         if(error){
@@ -34,21 +40,6 @@ export async function POST(request: Request) {
                 {error: 'Account creation failed'}, 
                 {status: 400}
             )
-        }
-
-        const {error: profileError} = await supabase
-            .from('profiles')
-            .insert({
-                id: user.id,
-                first_name: firstName,
-                last_name: lastName
-            })
-
-        if (profileError) {
-        return NextResponse.json(
-            { error: profileError.message },
-            { status: 400 }
-        )
         }
 
         return NextResponse.json({
