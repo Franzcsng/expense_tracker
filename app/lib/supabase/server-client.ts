@@ -17,7 +17,7 @@ export async function createClient(){
                             cookieStore.set(name, value, options)
                         );
                     } catch {
-                        throw new Error('Failed to set cookies. Error')
+                        // throw new Error('Failed to set cookies. Error')
                     }
                 }
             },  
