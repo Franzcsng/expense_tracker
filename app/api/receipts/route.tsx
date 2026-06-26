@@ -36,19 +36,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const formData = await request.formData()
-    const file = formData.get('receipt') as File | null
+    const files = (formData.getAll('receipts') as File[]).filter(f => f.size > 0)
 
-    if (!file || file.size === 0) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    if (files.length === 0) {
+      return NextResponse.json({ error: 'No files provided' }, { status: 400 })
     }
-    console.log("USER:",user)
 
     const { data: job, error: jobError } = await supabase
       .from('Processing_jobs')
-      .insert({
-          user_id: user.id,
-          status: 'started' 
-        })
+      .insert({ user_id: user.id, status: 'started' })
       .select('id')
       .single()
 
@@ -56,14 +52,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: jobError?.message ?? 'Failed to create job' }, { status: 500 })
     }
 
-    const n8nFormData = new FormData()
-    n8nFormData.append('receipt', file)
-    n8nFormData.append('userId', user.id)
-    n8nFormData.append('processingJobId', job.id)
+    const jobId = job.id
+
+    // Upload images to supabase storage
+    const uploadedReceipts = await Promise.all(
+      files.map((file) => {
+        const ext = file.name.split('.').pop() ?? 'jpg'
+        const path = `receipts/${user.id}/${jobId}/${crypto.randomUUID()}.${ext}`
+        console.log(path)
+        return supabase.storage
+          .from("Expense Tracker Bucket")
+          .upload(path, file)
+      })
+    )
+
+    const uploadedReceiptsUrls: string[] = uploadedReceipts.map((result) => {
+      console.log("RESULT: ",result)
+      return result.data!.path})
+
+    const rows = uploadedReceiptsUrls.map((result) => ({
+        user_id: user.id,
+        job_id: jobId,
+        storage_path: result,
+        status: "started",
+    }));
+    
+    const { data: uploadsId } = await supabase
+      .from('Receipt_uploads')
+      .insert(rows)
+      .select('id')
 
     const response = await fetch(process.env.N8N_IMAGE_UPLOAD_URL!, {
       method: 'POST',
-      body: n8nFormData,
+      // body: n8nFormData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jobId,
+      }),
     })
 
     if (!response.ok) {
