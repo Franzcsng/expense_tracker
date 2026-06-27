@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
       console.log("Error: ", error)
 
-      if(!uploadsId) {
+      if(!uploadsId || error) {
         return NextResponse.json({ error: 'Failed to insert receipt upload' }, { status: 500 })
       }
 
@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         jobId,
+        user_id: user.id,
       }),
     })
 
