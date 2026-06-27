@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
       files.map((file) => {
         const ext = file.name.split('.').pop() ?? 'jpg'
         const path = `receipts/${user.id}/${jobId}/${crypto.randomUUID()}.${ext}`
-        console.log(path)
         return supabase.storage
           .from("Expense Tracker Bucket")
           .upload(path, file)
@@ -67,24 +66,29 @@ export async function POST(request: NextRequest) {
     )
 
     const uploadedReceiptsUrls: string[] = uploadedReceipts.map((result) => {
-      console.log("RESULT: ",result)
       return result.data!.path})
 
     const rows = uploadedReceiptsUrls.map((result) => ({
         user_id: user.id,
         job_id: jobId,
         storage_path: result,
+        receipt_id: null,
         status: "started",
     }));
     
-    const { data: uploadsId } = await supabase
+    const { data: uploadsId, error } = await supabase
       .from('Receipt_uploads')
       .insert(rows)
       .select('id')
 
+      console.log("Error: ", error)
+
+      if(!uploadsId) {
+        return NextResponse.json({ error: 'Failed to insert receipt upload' }, { status: 500 })
+      }
+
     const response = await fetch(process.env.N8N_IMAGE_UPLOAD_URL!, {
       method: 'POST',
-      // body: n8nFormData,
       headers: {
         "Content-Type": "application/json",
       },
